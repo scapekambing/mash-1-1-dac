@@ -13,3 +13,9 @@ Based on the research paper:
 > **DOI:** [10.1109/TCSII.2018.2855962](https://doi.org/10.1109/TCSII.2018.2855962)
 
 So far, have only implemented the MASH 1-1 with a 2nd Order DSM reducing the 2 bit output of the MASH 1-1. Up next, implement their bit reduction algorithm.
+
+Copyright (c) 2023, <Edwin Firmansyah>
+All rights reserved.
+
+This source code is licensed under the BSD-style license found in the
+LICENSE file in the root directory of this source tree. 

@@ -5,6 +5,8 @@ module axis_unco
 (
     input                                                   aclk,
     input                                                   arst_n,
+    
+    input               [31:0]                              phase_shift,
 
     input               [31:0]                              s_axis_data_tdata,
     input                                                   s_axis_data_tvalid,
@@ -41,9 +43,10 @@ module axis_unco
     // NCO operation
     always_ff @(posedge aclk) begin
         if (~arst_n) begin
-            current_phase <= 0;
+            current_phase <= phase_shift;
             dither <= 0;
             m_axis_data_tdata <= 0;
+            current_sin_lut <= 0;
             m_axis_data_tvalid <= 0;
         end
         else begin

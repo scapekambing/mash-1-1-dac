@@ -1,10 +1,15 @@
 module top (
   input                 clk,
   input                 rst,
-  output                dac_out,  
+  output                dac_out  
 );
   
-
+  logic arst_n;
+  assign arst_n = rst;
+  
+  logic aclk;
+  assign aclk = clk;
+  
   //////////////////////////////////////////////////////////////////////
   // JTAG AXIL SLAVE to NCO ////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////
@@ -21,16 +26,18 @@ module top (
   logic                           tx_data_tvalid;
   
   logic         [ACC_WIDTH-1:0]   var_step;
+  logic         [ACC_WIDTH-1:0]   new_var_step;
   logic         [ACC_WIDTH-1:0]   ref_step;
   logic                           step_enable;
+  assign step_enable = 1'b1;
 
   // jtag_axil_adapter
   logic [3:0] frequency_selection;
   jtag_axil_adapter #(
     .ADDR_MASK(32'h0)
   )frequency_selector (
-    .aclk         (clk                  ),
-    .arst_n       (rst                  ),
+    .aclk         (aclk                  ),
+    .arst_n       (arst_n                  ),
     .m_axil_data  (frequency_selection  ),
     .m_axil_addr  (                     )
   );
@@ -101,7 +108,7 @@ module top (
     else begin
       // phase acc steps
       var_step <= new_var_step;
-      ref_step <= 32'd85900*10;    // 2khz * 10
+      ref_step <= 32'd85900*32;    // 2khz * 10
     end
   end
 
@@ -123,12 +130,14 @@ module top (
   // DSM ///////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////
 
-  // output of dsm to pmod
-  assign dac_out = dsm2_data
   
-  // FIRST ORDER DSM
-  logic dsm1_data;
-  logic dsm1_data_tvalid;
+  // MASH DSM
+  logic signed [2:0] mash_data;
+  logic mash_data_tvalid;
+  
+   // dsm2 logic
+  logic dsm2_data;
+  logic dsm2_data_tvalid;
 
   // mash inst
   axis_mash11 dac (
@@ -159,5 +168,7 @@ module top (
 		.m_axis_data_tvalid(dsm2_data_tvalid)
 	);
 
+    // output of dsm to pmod
+    assign dac_out = dsm2_data;
 
 endmodule

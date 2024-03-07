@@ -2,19 +2,18 @@
 
 `include "vunit_defines.svh"
 `include "../rtl/axis_unco.sv"
-`include "../rtl/axis_nco.sv"
 `include "../rtl/axis_efm.sv"
 `include "../rtl/axis_mash11.sv"
 `include "../rtl/axis_second_order_dsm_dac.sv"
 `include "../rtl/upconverter.sv"
 
-module tb_upconverter();
+module tb_mashup();
 
   
   integer i;
   integer n_complete_waves = 5;
   integer freq_multiplier = 1;
-  real freq = 20e3*freq_multiplier;
+  real freq = 80e3*freq_multiplier;
   real t_elapsed = 1/freq*n_complete_waves*1e9;
  
 
@@ -23,7 +22,7 @@ module tb_upconverter();
   logic xclk;
   logic arst_n;
 
-  localparam MASH_BW = 5;
+  localparam MASH_BW = 7;
 
   // nco params
   localparam WIDTH = 16;
@@ -32,42 +31,42 @@ module tb_upconverter();
   localparam ACC_INT_WIDTH = $clog2(LUT_DEPTH);
   localparam ACC_WIDTH = ACC_INT_WIDTH + ACC_FRAC_WIDTH;
 
+  // nco logic
+  logic         [WIDTH-1:0]       tx_data; 
+  logic                           tx_data_tvalid;
+  logic         [WIDTH-1:0]       tx2_data; 
+  logic                           tx2_data_tvalid;
+  logic         [ACC_WIDTH-1:0]   step;
+  logic                           step_enable;
+ 
+  // dsm logic
+  logic signed  [MASH_BW-1:0]     mash_data;
+  logic                           mash_data_tvalid;
+  logic signed  [MASH_BW-1:0]     mash2_data;
+  logic                           mash2_data_tvalid;
+
+  // dsm logic
+  logic dsm_data;
+  logic dsm_data_tvalid;
+  logic dsm2_data;
+  logic dsm2_data_tvalid;
+
   // clock generation
-  localparam real clk_period = 8;
+  localparam clk_period = 8;
   always begin
     #(clk_period/2) aclk = ~aclk;
   end
+
   always begin
     #(clk_period/8) xclk = ~xclk;
   end
 
-  /*
-  * I CHANNEL
-  */
-
-  // nco logic
-  // logic         [WIDTH-1:0]       tx_data; 
-  logic signed [WIDTH-1:0]       tx_data;
-  logic                           tx_data_tvalid;
-  
-  logic         [ACC_WIDTH-1:0]   step;
-  logic                           step_enable;
-
- 
-  // dsm logic
-  logic signed [MASH_BW-1:0] mash_data;
-  logic              mash_data_tvalid;
-
-  // dsm2 logic
-  logic dsm_data;
-  logic dsm_data_tvalid;
-
   // nco inst
-  axis_nco wave1_gen ( 
+  axis_unco wave1_gen ( 
     .aclk(aclk),    
     .arst_n(arst_n),
 
-    .phase_shift( ((1 << (6))) << ACC_FRAC_WIDTH),
+    .phase_shift( ((1 << (6))) << ACC_FRAC_WIDTH ),
 
     .s_axis_data_tdata(step),    
     .s_axis_data_tvalid(step_enable),
@@ -76,52 +75,14 @@ module tb_upconverter();
 
     .m_axis_data_tdata(tx_data),    
     .m_axis_data_tvalid(tx_data_tvalid)    
-  );
-
-  axis_first_order_dsm_dac # (
-    .WIDTH(WIDTH),
-    .EXT(1)
-  )
-  dsm (
-    .aclk(aclk),
-    .arst_n(arst_n),
-
-    // slave inputs
-    .s_axis_data_tdata(tx_data >>> 2),
-    .s_axis_data_tvalid(tx_data_tvalid),
-    
-    // slave outputs
-    .s_axis_data_tready(),
-    
-    // master outputs
-    .m_axis_data_tdata(dsm_data),
-    .m_axis_data_tvalid(dsm_data_tvalid)
-  );
-
-
-  /*
-  * Q CHANNEL
-  */
-
-  // nco logic
-  // logic         [WIDTH-1:0]       tx2_data;
-  logic signed  [WIDTH-1:0]       tx2_data; 
-  logic                           tx2_data_tvalid;
-
-  // dsm logic
-  logic signed [MASH_BW-1:0] mash2_data;
-  logic              mash2_data_tvalid;
-
-  // dsm2 logic
-  logic dsm2_data;
-  logic dsm2_data_tvalid;
+  ); 
 
   // nco inst
-  axis_nco wave2_gen ( 
+  axis_unco wave2_gen ( 
     .aclk(aclk),    
     .arst_n(arst_n),
 
-    .phase_shift(32'b0),
+    .phase_shift(32'd0),
 
     .s_axis_data_tdata(step),    
     .s_axis_data_tvalid(step_enable),
@@ -130,29 +91,73 @@ module tb_upconverter();
 
     .m_axis_data_tdata(tx2_data),    
     .m_axis_data_tvalid(tx2_data_tvalid)    
-  );
+  ); 
 
-
-  axis_first_order_dsm_dac # (
+  // mash inst
+  axis_mash11 #(
     .WIDTH(WIDTH),
-    .EXT(1)
-  )
- dsm2 (
+    .DAC_BW(MASH_BW)
+  ) dac (
     .aclk(aclk),
     .arst_n(arst_n),
 
     // slave inputs
-    .s_axis_data_tdata(tx2_data >>> 2),
-    .s_axis_data_tvalid(tx2_data_tvalid),
+    .s_axis_data_tdata  (tx_data >> 1),
+    .s_axis_data_tvalid (tx_data_tvalid),
     
     // slave outputs
     .s_axis_data_tready(),
     
     // master outputs
-    .m_axis_data_tdata(dsm2_data),
-    .m_axis_data_tvalid(dsm2_data_tvalid)
+    .m_axis_data_tdata(mash_data),
+    .m_axis_data_tvalid(mash_data_tvalid)
   );
 
+  // mash inst
+  axis_mash11 #(
+    .WIDTH(WIDTH),
+    .DAC_BW(MASH_BW)
+  ) dac2 (
+    .aclk(aclk),
+    .arst_n(arst_n),
+
+    // slave inputs
+    .s_axis_data_tdata  (tx2_data >> 1),
+    .s_axis_data_tvalid (tx2_data_tvalid),
+    
+    // slave outputs
+    .s_axis_data_tready(),
+    
+    // master outputs
+    .m_axis_data_tdata(mash2_data),
+    .m_axis_data_tvalid(mash2_data_tvalid)
+  );
+
+
+  // dsm inst
+  axis_second_order_dsm_dac # (
+		.WIDTH(MASH_BW)
+	) dsm (
+		.aclk(aclk),
+		.arst_n(arst_n),
+		.s_axis_data_tdata(mash_data),
+		.s_axis_data_tvalid(mash_data_tvalid),
+		.s_axis_data_tready(),
+		.m_axis_data_tdata(dsm_data),
+		.m_axis_data_tvalid(dsm_data_tvalid)
+	);
+
+   axis_second_order_dsm_dac # (
+		.WIDTH(MASH_BW)
+	) dsm2 (
+		.aclk(aclk),
+		.arst_n(arst_n),
+		.s_axis_data_tdata(mash2_data),
+		.s_axis_data_tvalid(mash2_data_tvalid),
+		.s_axis_data_tready(),
+		.m_axis_data_tdata(dsm2_data),
+		.m_axis_data_tvalid(dsm2_data_tvalid)
+	);
 
   var logic upconverter_out;
   upconverter upconverter_inst (
@@ -219,8 +224,8 @@ module tb_upconverter();
     #(clk_period);
     arst_n = 1;
     step_enable = 1;
-    step = (1 << 18); //97KHZ
-    //step = 24'd85900;
+    step = (1 << 22); //97KHZ
+    // step = 24'd85900;
     // step = step * 20; // 1MHz
     // step = 1'b1 << (32-8-1); 
 
@@ -229,7 +234,7 @@ module tb_upconverter();
         break;
       end
       else begin
-        $display("%d, %d, %b, %b", i, tx_data, upconverter_out, dsm2_data);
+        $display("%d, %d, %b, %d, %b", i, tx_data, upconverter_out, mash_data, dsm2_data);
         i = i + 1;
         #(clk_period/4);
       end

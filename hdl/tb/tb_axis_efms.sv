@@ -2,15 +2,15 @@
 
 `include "vunit_defines.svh"
 `include "../rtl/axis_nco.sv"
-`include "../rtl/axis_second_order_dsm_dac.sv"
-`include "../rtl/axis_first_order_dsm_dac.sv"
+`include "../rtl/axis_efms.sv"
 
-module tb_axis_second_order_dsm_dac();
+module tb_axis_efms();
 
+  
   integer i;
-  integer n_complete_waves = 5;
+  integer n_complete_waves = 10;
   integer freq_multiplier = 1;
-  real freq = 2e3*freq_multiplier;
+  real freq = 20e3*freq_multiplier;
   real t_elapsed = 1/freq*n_complete_waves*1e9;
  
 
@@ -20,26 +20,23 @@ module tb_axis_second_order_dsm_dac();
 
 
   // nco params
-  localparam SIGN = 1;
-  localparam WIDTH = 15 + SIGN;
-  localparam ACC_FRAC_WIDTH = 24;
+  localparam WIDTH = 16;
   localparam LUT_DEPTH = 2**8;
+  localparam ACC_FRAC_WIDTH = 24;
   localparam ACC_INT_WIDTH = $clog2(LUT_DEPTH);
   localparam ACC_WIDTH = ACC_INT_WIDTH + ACC_FRAC_WIDTH;
 
   // nco logic
   logic signed  [WIDTH-1:0]       tx_data; 
   logic                           tx_data_tvalid;
-
-  logic signed  [WIDTH-1:0]       cic_data; 
-  logic                           cic_data_tvalid;
   
   logic         [ACC_WIDTH-1:0]   step;
   logic                           step_enable;
 
+ 
   // dsm logic
-  logic dsm2_data;
-  logic dsm2_data_tvalid;
+  logic dsm1_data;
+  logic dsm1_data_tvalid;
 
   // clock generation
   localparam clk_period = 10;
@@ -47,13 +44,12 @@ module tb_axis_second_order_dsm_dac();
     #(clk_period/2) aclk = ~aclk;
   end
 
-
   // nco inst
   axis_nco wave1_gen ( 
     .aclk(aclk),    
     .arst_n(arst_n),
 
-    .phase_shift(0),
+    .phase_shift(32'd0),
 
     .s_axis_data_tdata(step),    
     .s_axis_data_tvalid(step_enable),
@@ -65,24 +61,23 @@ module tb_axis_second_order_dsm_dac();
   ); 
 
   // first order dsm
-  axis_first_order_dsm_dac # (
-    .WIDTH(WIDTH),
-    .EXT(1)
+  axis_efms # (
+    .WIDTH(WIDTH)
   )
-  axis_first_order_dsm (
+  dac (
     .aclk(aclk),
     .arst_n(arst_n),
 
     // slave inputs
-    .s_axis_data_tdata(tx_data >>> 2),
-    .s_axis_data_tvalid(tx_data_tvalid),
+    .s_axis_data_tdata  (tx_data),
+    .s_axis_data_tvalid (tx_data_tvalid),
     
     // slave outputs
     .s_axis_data_tready(),
     
     // master outputs
-    .m_axis_data_tdata(dsm2_data),
-    .m_axis_data_tvalid(dsm2_data_tvalid)
+    .m_axis_data_tdata(dsm1_data),
+    .m_axis_data_tvalid(dsm1_data_tvalid)
   );
 
 
@@ -100,22 +95,21 @@ module tb_axis_second_order_dsm_dac();
     #(clk_period);
     arst_n = 1;
     step_enable = 1;
-    // step = 24'd85900;
-    step = 1 << 22;
-    step = step*freq_multiplier;
+    step = 24'd85900;
+    // step = step * 20; // 1MHz
+    // step = 1'b1 << (32-8-1); 
 
-    
     while(1) begin
       if($time==2*t_elapsed+clk_period) begin
         break;
       end
       else begin
-        $display("%d, %d, %b", i, $signed(tx_data), dsm2_data);
+        $display("%d, %d, %b", i, tx_data, dsm1_data);
         i = i + 1;
         #(clk_period);
       end
     end
-    `CHECK_EQUAL($signed(tx_data), -392);
+    // `CHECK_EQUAL($signed(tx_data), -392);
   end
 
 end

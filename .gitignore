@@ -2,3 +2,5 @@ vivado/
 
 python/run-vunit/__pycache__
 python/run-vunit/vunit_out
+
+/vunit_out

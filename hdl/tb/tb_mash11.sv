@@ -11,7 +11,7 @@ module tb_mash11();
   integer i;
   integer n_complete_waves = 5;
   integer freq_multiplier = 1;
-  real freq = 2e3*freq_multiplier;
+  real freq = 20e3*freq_multiplier;
   real t_elapsed = 1/freq*n_complete_waves*1e9;
  
 
@@ -34,10 +34,11 @@ module tb_mash11();
   logic         [ACC_WIDTH-1:0]   step;
   logic                           step_enable;
 
+  localparam MASH_BW = 4;
  
   // dsm logic
-  logic signed [2:0] mash_data;
-  logic signed [2:0] mash_data_tvalid;
+  logic signed [MASH_BW-1:0] mash_data;
+  logic mash_data_tvalid;
 
   // dsm2 logic
   logic dsm2_data;
@@ -54,6 +55,8 @@ module tb_mash11();
     .aclk(aclk),    
     .arst_n(arst_n),
 
+    .phase_shift(0),
+
     .s_axis_data_tdata(step),    
     .s_axis_data_tvalid(step_enable),
    
@@ -64,12 +67,16 @@ module tb_mash11();
   ); 
 
   // mash inst
-  axis_mash11 dac (
+  logic dsm1_data;
+  axis_mash11 #(
+    .WIDTH(WIDTH),
+    .DAC_BW(MASH_BW)
+  ) dac (
     .aclk(aclk),
     .arst_n(arst_n),
 
     // slave inputs
-    .s_axis_data_tdata  (tx_data >> 1),
+    .s_axis_data_tdata  (tx_data),
     .s_axis_data_tvalid (tx_data_tvalid),
     
     // slave outputs
@@ -77,11 +84,12 @@ module tb_mash11();
     
     // master outputs
     .m_axis_data_tdata(mash_data),
-    .m_axis_data_tvalid(mash_data_tvalid)
+    .m_axis_data_tvalid(mash_data_tvalid),
+    .dsm_data(dsm1_data)
   );
 
   axis_second_order_dsm_dac # (
-		.WIDTH(3)
+		.WIDTH(MASH_BW)
 	) dsm2 (
 		.aclk(aclk),
 		.arst_n(arst_n),
@@ -152,18 +160,19 @@ module tb_mash11();
     // step = step * 20; // 1MHz
     // step = 1'b1 << (32-8-1); 
 
+
     while(1) begin
       if($time==2*t_elapsed+clk_period) begin
         break;
       end
       else begin
-        $display("%d, %d, %b", i, tx_data, dsm2_data);
+        $display("%d, %d, %b, %d, %b ", i, tx_data, dsm1_data, mash_data, dsm2_data);
         i = i + 1;
         #(clk_period);
       end
     end
+  end
     // `CHECK_EQUAL($signed(tx_data), -392);
   end
 
-end
 endmodule

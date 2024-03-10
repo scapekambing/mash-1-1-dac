@@ -30,14 +30,6 @@ module jtag_axil_slave #(
 );
 
   /////////////////////////////////////
-  // BACKEND //////////////////////////
-  /////////////////////////////////////
-  assign data_out   = data_latch;
-  assign addr_out   = addr_latch;
-  assign data_valid = data_done && addr_done;
-
-
-  /////////////////////////////////////
   // WRITE DATA ///////////////////////
   /////////////////////////////////////
 
@@ -47,6 +39,13 @@ module jtag_axil_slave #(
   // Flip-flops for latching data
   logic [31:0]  data_latch;
   logic [31:0]   addr_latch;
+
+    /////////////////////////////////////
+  // BACKEND //////////////////////////
+  /////////////////////////////////////
+  assign data_out   = data_latch;
+  assign addr_out   = addr_latch;
+  assign data_valid = data_done && addr_done;
 
   // master will assert awvalid
   // so slave must assert awready

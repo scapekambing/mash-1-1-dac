@@ -98,7 +98,8 @@ module axis_mash11 # (
 		dsm2_data_signed = dsm2_data;
 
 		// hookup to output
-		m_axis_data_tdata = mash11*4 - 1;
+		// m_axis_data_tdata = 2*mash11-1;
+		m_axis_data_tdata = mash11;
 	end
 
 endmodule

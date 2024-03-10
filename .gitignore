@@ -1,6 +1,7 @@
-vivado/
+/vivado
 
-python/run-vunit/__pycache__
-python/run-vunit/vunit_out
+python/vunit/__pycache__
+python/vunit/vunit_out
 
 /vunit_out
+/__pycache__

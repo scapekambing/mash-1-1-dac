@@ -7,5 +7,5 @@ rtl\axis_unco.sv
 rtl\fpga.sv
 rtl\jtag_axil_adapter.sv
 rtl\jtag_axil_slave.sv
-rtl\top.sv
+rtl\dsm_core.sv
 rtl\upconverter.sv

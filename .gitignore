@@ -1,5 +1,7 @@
 /vivado
 
+hdl/vunit_out
+
 python/vunit/__pycache__
 python/vunit/vunit_out
 

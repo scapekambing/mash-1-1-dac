@@ -1,11 +1,6 @@
 `timescale 1ns/1ns
 
 `include "vunit_defines.svh"
-`include "../rtl/axis_unco.sv"
-`include "../rtl/axis_efm.sv"
-`include "../rtl/axis_mash11.sv"
-`include "../rtl/axis_second_order_dsm_dac.sv"
-`include "../rtl/upconverter.sv"
 
 module tb_mashup();
 

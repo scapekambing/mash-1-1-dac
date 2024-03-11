@@ -1,16 +1,16 @@
-`timescale 1ns/1ns
+`timescale 1ns / 1ns
 
 `include "vunit_defines.svh"
 
-module tb_upconverter();
+module tb_upconverter ();
 
-  
+
   integer i;
   integer n_complete_waves = 5;
   integer freq_multiplier = 1;
-  real freq = 20e3*freq_multiplier;
-  real t_elapsed = 1/freq*n_complete_waves*1e9;
- 
+  real freq = 20e3 * freq_multiplier;
+  real t_elapsed = 1 / freq * n_complete_waves * 1e9;
+
 
   // clock and reset lines
   logic aclk;
@@ -21,7 +21,7 @@ module tb_upconverter();
 
   // nco params
   localparam WIDTH = 16;
-  localparam LUT_DEPTH = 2**8;
+  localparam LUT_DEPTH = 2 ** 8;
   localparam ACC_FRAC_WIDTH = 24;
   localparam ACC_INT_WIDTH = $clog2(LUT_DEPTH);
   localparam ACC_WIDTH = ACC_INT_WIDTH + ACC_FRAC_WIDTH;
@@ -29,10 +29,10 @@ module tb_upconverter();
   // clock generation
   localparam real clk_period = 8;
   always begin
-    #(clk_period/2) aclk = ~aclk;
+    #(clk_period / 2) aclk = ~aclk;
   end
   always begin
-    #(clk_period/8) xclk = ~xclk;
+    #(clk_period / 8) xclk = ~xclk;
   end
 
   /*
@@ -41,55 +41,54 @@ module tb_upconverter();
 
   // nco logic
   // logic         [WIDTH-1:0]       tx_data; 
-  logic signed [WIDTH-1:0]       tx_data;
-  logic                           tx_data_tvalid;
-  
-  logic         [ACC_WIDTH-1:0]   step;
-  logic                           step_enable;
+  logic signed [    WIDTH-1:0] tx_data;
+  logic                        tx_data_tvalid;
 
- 
+  logic        [ACC_WIDTH-1:0] step;
+  logic                        step_enable;
+
+
   // dsm logic
-  logic signed [MASH_BW-1:0] mash_data;
-  logic              mash_data_tvalid;
+  logic signed [  MASH_BW-1:0] mash_data;
+  logic                        mash_data_tvalid;
 
   // dsm2 logic
-  logic dsm_data;
-  logic dsm_data_tvalid;
+  logic                        dsm_data;
+  logic                        dsm_data_tvalid;
 
   // nco inst
-  axis_nco wave1_gen ( 
-    .aclk(aclk),    
-    .arst_n(arst_n),
+  axis_nco wave1_gen (
+      .aclk  (aclk),
+      .arst_n(arst_n),
 
-    .phase_shift( ((1 << (6))) << ACC_FRAC_WIDTH),
+      .phase_shift(((1 << (6))) << ACC_FRAC_WIDTH),
 
-    .s_axis_data_tdata(step),    
-    .s_axis_data_tvalid(step_enable),
-   
-    .s_axis_data_tready(),
+      .s_axis_data_tdata (step),
+      .s_axis_data_tvalid(step_enable),
 
-    .m_axis_data_tdata(tx_data),    
-    .m_axis_data_tvalid(tx_data_tvalid)    
+      .s_axis_data_tready(),
+
+      .m_axis_data_tdata (tx_data),
+      .m_axis_data_tvalid(tx_data_tvalid)
   );
 
-  axis_first_order_dsm_dac # (
-    .WIDTH(WIDTH),
-    .EXT(1)
-  )
-  dsm (
-    .aclk(aclk),
-    .arst_n(arst_n),
+  axis_first_order_dsm_dac #(
+      .WIDTH(WIDTH),
+      .EXT  (1)
+  ) dsm (
+      .aclk  (aclk),
+      .arst_n(arst_n),
 
-    // slave inputs
-    .s_axis_data_tdata(tx_data >>> 2),
-    .s_axis_data_tvalid(tx_data_tvalid),
-    
-    // slave outputs
-    .s_axis_data_tready(),
-    
-    // master outputs
-    .m_axis_data_tdata(dsm_data),
-    .m_axis_data_tvalid(dsm_data_tvalid)
+      // slave inputs
+      .s_axis_data_tdata (tx_data >>> 2),
+      .s_axis_data_tvalid(tx_data_tvalid),
+
+      // slave outputs
+      .s_axis_data_tready(),
+
+      // master outputs
+      .m_axis_data_tdata (dsm_data),
+      .m_axis_data_tvalid(dsm_data_tvalid)
   );
 
 
@@ -99,137 +98,97 @@ module tb_upconverter();
 
   // nco logic
   // logic         [WIDTH-1:0]       tx2_data;
-  logic signed  [WIDTH-1:0]       tx2_data; 
-  logic                           tx2_data_tvalid;
+  logic signed [  WIDTH-1:0] tx2_data;
+  logic                      tx2_data_tvalid;
 
   // dsm logic
   logic signed [MASH_BW-1:0] mash2_data;
-  logic              mash2_data_tvalid;
+  logic                      mash2_data_tvalid;
 
   // dsm2 logic
-  logic dsm2_data;
-  logic dsm2_data_tvalid;
+  logic                      dsm2_data;
+  logic                      dsm2_data_tvalid;
 
   // nco inst
-  axis_nco wave2_gen ( 
-    .aclk(aclk),    
-    .arst_n(arst_n),
+  axis_nco wave2_gen (
+      .aclk  (aclk),
+      .arst_n(arst_n),
 
-    .phase_shift(32'b0),
+      .phase_shift(32'b0),
 
-    .s_axis_data_tdata(step),    
-    .s_axis_data_tvalid(step_enable),
-   
-    .s_axis_data_tready(),
+      .s_axis_data_tdata (step),
+      .s_axis_data_tvalid(step_enable),
 
-    .m_axis_data_tdata(tx2_data),    
-    .m_axis_data_tvalid(tx2_data_tvalid)    
+      .s_axis_data_tready(),
+
+      .m_axis_data_tdata (tx2_data),
+      .m_axis_data_tvalid(tx2_data_tvalid)
   );
 
 
-  axis_first_order_dsm_dac # (
-    .WIDTH(WIDTH),
-    .EXT(1)
-  )
- dsm2 (
-    .aclk(aclk),
-    .arst_n(arst_n),
+  axis_first_order_dsm_dac #(
+      .WIDTH(WIDTH),
+      .EXT  (1)
+  ) dsm2 (
+      .aclk  (aclk),
+      .arst_n(arst_n),
 
-    // slave inputs
-    .s_axis_data_tdata(tx2_data >>> 2),
-    .s_axis_data_tvalid(tx2_data_tvalid),
-    
-    // slave outputs
-    .s_axis_data_tready(),
-    
-    // master outputs
-    .m_axis_data_tdata(dsm2_data),
-    .m_axis_data_tvalid(dsm2_data_tvalid)
+      // slave inputs
+      .s_axis_data_tdata (tx2_data >>> 2),
+      .s_axis_data_tvalid(tx2_data_tvalid),
+
+      // slave outputs
+      .s_axis_data_tready(),
+
+      // master outputs
+      .m_axis_data_tdata (dsm2_data),
+      .m_axis_data_tvalid(dsm2_data_tvalid)
   );
 
 
   var logic upconverter_out;
   upconverter upconverter_inst (
-    .clk(xclk),
-    .rst_n(arst_n),
-    .data_i(dsm_data),
-    .data_q(dsm2_data),
-    .data_out(upconverter_out)
+      .clk(xclk),
+      .rst_n(arst_n),
+      .data_i(dsm_data),
+      .data_q(dsm2_data),
+      .data_out(upconverter_out)
   );
 
 
-`TEST_SUITE begin
+  // /* verilog format: off*/ 
+  `TEST_SUITE begin
 
-  // `TEST_CASE("op") begin
-  //   // init vals
-  //   aclk = 0;
-  //   i = 0;
-  //   arst_n = 0;
-  //   step_enable = 0;
-  //   step = 0;
+    `TEST_CASE("plot") begin
+      // init vals
+      aclk = 0;
+      xclk = 0;
+      i = 0;
+      arst_n = 0;
+      step_enable = 0;
+      step = 0;
 
-  //   // reset pulse
-  //   #(clk_period);
-  //   arst_n = 1;
-  //   step_enable = 1;
-  //   step = 24'd85900;
-  //   step = step*freq_multiplier;
+      // reset pulse
+      #(clk_period);
+      arst_n = 1;
+      step_enable = 1;
+      step = (1 << 18); //97KHZ
+      //step = 24'd85900;
+      // step = step * 20; // 1MHz
+      // step = 1'b1 << (32-8-1); 
 
-  //   // 2khz
-  //   while(1) begin
-  //     if($time==t_elapsed+clk_period) begin
-  //       break;
-  //     end
-  //     else begin
-  //       i = i + 1;
-  //       #(clk_period);
-  //     end
-  //   end
-
-  //   // 8khz
-  //   step = step*4;
-  //   while(1) begin
-  //     if($time==2*t_elapsed+clk_period) begin
-  //       break;
-  //     end
-  //     else begin
-  //       i = i + 1;
-  //       #(clk_period);
-  //     end
-  //   end
-
-  // end
-
-  `TEST_CASE("plot") begin
-    // init vals
-    aclk = 0;
-    xclk = 0;
-    i = 0;
-    arst_n = 0;
-    step_enable = 0;
-    step = 0;
-
-    // reset pulse
-    #(clk_period);
-    arst_n = 1;
-    step_enable = 1;
-    step = (1 << 18); //97KHZ
-    //step = 24'd85900;
-    // step = step * 20; // 1MHz
-    // step = 1'b1 << (32-8-1); 
-
-    while(1) begin
-      if($time==2*t_elapsed+clk_period) begin
-        break;
+      while(1) begin
+        if($time==2*t_elapsed+clk_period) begin
+          break;
+        end
+        else begin
+          $display("%d, %d, %b, %b", i, tx_data, upconverter_out, dsm2_data);
+          i = i + 1;
+          #(clk_period/4);
+        end
       end
-      else begin
-        $display("%d, %d, %b, %b", i, tx_data, upconverter_out, dsm2_data);
-        i = i + 1;
-        #(clk_period/4);
-      end
+      // `CHECK_EQUAL($signed(tx_data), -392);
     end
-    // `CHECK_EQUAL($signed(tx_data), -392);
   end
 
-end
 endmodule

@@ -1,4 +1,3 @@
-from vunit_utils import *
 import argparse
 from vunit.verilog import VUnit
 import os

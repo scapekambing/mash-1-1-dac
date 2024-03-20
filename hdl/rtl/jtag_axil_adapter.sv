@@ -1,22 +1,23 @@
 module jtag_axil_adapter #(
-    ADDR_MASK = 32'hC
+    ADDR_MASK = 32'hC,
+    WIDTH = 8
 ) (
-    input        aclk,
-    input        arst_n,
-    output [3:0] m_axil_data,
-    output [3:0] m_axil_addr
+    input              aclk,
+    input              arst_n,
+    output [WIDTH-1:0] m_axil_data,
+    output [WIDTH-1:0] m_axil_addr
 );
 
-  logic [3:0] jtag_axil_data;
-  assign m_axil_data = jtag_axil_data[3:0];
+  logic [WIDTH-1:0] jtag_axil_data;
+  assign m_axil_data = jtag_axil_data;
 
-  logic [3:0] jtag_axil_addr;
-  assign m_axil_addr = jtag_axil_addr[3:0];
+  logic [WIDTH-1:0] jtag_axil_addr;
+  assign m_axil_addr = jtag_axil_addr;
 
 
   //Parameters of Axi Slave Bus Interface
-  localparam integer C_S_AXI_DATA_WIDTH = 31;
-  localparam integer C_S_AXI_ADDR_WIDTH = 31;
+  localparam C_S_AXI_DATA_WIDTH = 32;
+  localparam C_S_AXI_ADDR_WIDTH = 32;
 
   tri [    C_S_AXI_ADDR_WIDTH-1 : 0] awaddr;
   tri [                       2 : 0] awprot;

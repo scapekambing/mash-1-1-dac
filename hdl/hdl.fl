@@ -4,8 +4,10 @@ rtl\axis_mash11.sv
 rtl\axis_nco.sv
 rtl\axis_second_order_dsm_dac.sv
 rtl\axis_unco.sv
+rtl\dsm_core.sv
 rtl\fpga.sv
 rtl\jtag_axil_adapter.sv
 rtl\jtag_axil_slave.sv
-rtl\dsm_core.sv
+rtl\oserdes_upconverter.sv
+rtl\top.sv
 rtl\upconverter.sv

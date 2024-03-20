@@ -5,6 +5,7 @@ module axis_unco (
     input               aclk,
     input               arst_n,
     input        [31:0] phase_shift,
+    input               dither_enable,
     input        [31:0] s_axis_data_tdata,
     input               s_axis_data_tvalid,
     output logic        s_axis_data_tready,
@@ -65,8 +66,11 @@ module axis_unco (
     s_axis_data_tready = 1'b1;
 
     // dither logic
-    // dithered_phase = current_phase + dither;
-    dithered_phase = current_phase;
+    case (dither)
+      default: dithered_phase = current_phase + dither;
+      1'b0: dithered_phase = current_phase;
+    endcase
+
     feedback = dither[23] ^~ dither[22] ^~ dither[21] ^~ dither[16];
   end
 

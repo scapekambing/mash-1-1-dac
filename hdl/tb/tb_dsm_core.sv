@@ -17,7 +17,7 @@ module tb_dsm_core();
   logic xclk;
   logic rst_n;
 
-  localparam MASH_BW = 3;
+  localparam MASH_BW = 7;
 
   // nco params
   localparam WIDTH = 16;

@@ -68,7 +68,7 @@ module unco (
     s_axis_data_tready = 1'b1;
 
     // dither logic
-    case (dither)
+    case (dither_enable)
       default: dithered_phase = current_phase + dither;
       1'b0: dithered_phase = current_phase;
     endcase

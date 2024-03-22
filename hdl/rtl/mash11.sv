@@ -22,6 +22,7 @@ module mash11 #(
   logic                     dsm1_data;
   logic        [ WIDTH-1:0] dsm1_error;
   logic                     dsm1_data_tvalid;
+  logic                     dsm1_data_tready;
 
   // dsm2 signals
   logic                     dsm2_data;
@@ -46,7 +47,7 @@ module mash11 #(
       .s_axis_data_tvalid(s_axis_data_tvalid),
 
       // slave outputs
-      .s_axis_data_tready(s_axis_data_tready),
+      .s_axis_data_tready(dsm1_data_tready),
 
       // master outputs
       .m_axis_data_tdata (dsm1_data),
@@ -89,7 +90,7 @@ module mash11 #(
 
   always_comb begin
     // axis logic
-    s_axis_data_tready = 1;
+    s_axis_data_tready = dsm1_data_tready && dsm2_data_tready;
 
     // sign extension logic
     dsm1_data_signed   = dsm1_data;

@@ -7,18 +7,11 @@ module jtag_axil_adapter #(
     parameter integer ADDR_MASK = 32'hC,
     parameter integer WIDTH = 32
 ) (
-    input  tri             aclk,
-    input  tri             arst_n,
+    input  tri               aclk,
+    input  tri               arst_n,
     output tri [WIDTH-1:0] m_axil_data,
     output tri [WIDTH-1:0] m_axil_addr
 );
-
-  logic [WIDTH-1:0] jtag_axil_data;
-  assign m_axil_data = jtag_axil_data;
-
-  logic [WIDTH-1:0] jtag_axil_addr;
-  assign m_axil_addr = jtag_axil_addr;
-
 
   //Parameters of Axi Slave Bus Interface
   localparam C_S_AXI_DATA_WIDTH = 32;
@@ -91,8 +84,8 @@ module jtag_axil_adapter #(
       .s_axi_rresp  (rresp),
       .s_axi_rvalid (rvalid),
       .s_axi_rready (rready),
-      .data_out     (jtag_axil_data),
-      .addr_out     (jtag_axil_addr)
+      .data_out     (m_axil_data),
+      .addr_out     (m_axil_addr)
   );
 
 endmodule

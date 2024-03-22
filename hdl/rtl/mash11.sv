@@ -19,19 +19,18 @@ module mash11 #(
 );
 
   // dsm1 signals
-  logic                     dsm1_data;
-  logic        [ WIDTH-1:0] dsm1_error;
-  logic                     dsm1_data_tvalid;
-  logic                     dsm1_data_tready;
+  logic             dsm1_data;
+  logic [WIDTH-1:0] dsm1_error;
+  logic             dsm1_data_tvalid;
+  logic             dsm1_data_tready;
 
   // dsm2 signals
-  logic                     dsm2_data;
-  logic        [ WIDTH-1:0] dsm2_error;
-  logic                     dsm2_data_tvalid;
-  logic                     dsm2_data_tready;
+  logic             dsm2_data;
+  logic [WIDTH-1:0] dsm2_error;
+  logic             dsm2_data_tvalid;
+  logic             dsm2_data_tready;
 
   // mash signals
-  logic signed [DAC_BW-1:0] mash11;
   logic signed [DAC_BW-1:0] dsm2_data_signed_delayed, dsm1_data_signed, dsm2_data_signed;
 
   logic en;

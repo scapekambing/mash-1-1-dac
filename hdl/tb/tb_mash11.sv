@@ -60,7 +60,7 @@ module tb_mash11();
     .aclk(aclk),    
     .arst_n(arst_n),
 
-    .phase_shift(0),
+    .phase_shift(32'd0),
 
     .s_axis_data_tdata(step),    
     .s_axis_data_tvalid(step_enable),

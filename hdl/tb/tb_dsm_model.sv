@@ -57,12 +57,17 @@ module tb_dsm_model();
   end
 
   // dsm model
-  dsm_model dsm_model1_inst (
+  dsm_model #(
+    .MASH_BW(MASH_BW),
+    .WIDTH(WIDTH),
+    .ACC_FRAC_WIDTH(ACC_FRAC_WIDTH),
+    .ACC_INT_WIDTH(ACC_INT_WIDTH)
+  ) dsm_model1_inst (
     .aclk(aclk),
     .xclk(xclk),
     .rst_n(rst_n),
     .nco_step(step),
-    .nco_step_enable(1),
+    .nco_step_enable(1'b1),
     .dither_enable(1'b0),
     .tx_i_data(tx_i_data),
     .tx_q_data(tx_q_data),

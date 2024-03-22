@@ -59,9 +59,8 @@ module dsm_model #(
 
   // unsigned nco inst
   unco wave_q_gen (
-      .aclk  (aclk),
+      .aclk(aclk),
       .arst_n(rst_n),
-
       .phase_shift(32'd0),
       .dither_enable(dither_enable),
       .s_axis_data_tdata(nco_step),

@@ -6,7 +6,7 @@
 module mod2 #(
     parameter integer WIDTH = 16,
     parameter integer EXT_ACC_1 = 2,
-    parameter integer EXT_ACC_2 = 4
+    parameter integer EXT_ACC_2 = 8
 ) (
     input tri aclk,
     input tri arst_n,
@@ -46,10 +46,10 @@ module mod2 #(
         // if the last output was 0, then that means we undershot
         // the desired val, so add the full scale value (exlcude sign)
         dsm_acc_1 = dsm_acc_1 + dsm_in_extended  // sigma
-                      + (2 ** (WIDTH - 1)-1);  // delta
+                      + (2 ** (WIDTH - 1));  // delta
 
         dsm_acc_2 = dsm_acc_2 + dsm_acc_1  // sigma
-                      + (2 ** (WIDTH - 1)-1);  // delta
+                      + (2 ** (WIDTH - 1));  // delta
       end
       // verilog_format: on //
 

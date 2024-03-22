@@ -10,19 +10,19 @@ module dsm_core #(
     parameter integer ACC_INT_WIDTH = 8
 
 ) (
-    input  tri                                    aclk,
-    input  tri                                    xclk,
-    input  tri                                    rst_n,
-    input  tri [ACC_FRAC_WIDTH+ACC_INT_WIDTH-1:0] nco_step,
-    input  tri                                    nco_step_enable,
-    input  tri                                    dither_enable,
-    output tri [                       WIDTH-1:0] tx_i_data,
-    output tri [                       WIDTH-1:0] tx_q_data,
-    output tri [                     MASH_BW-1:0] mash_i_data,
-    output tri [                     MASH_BW-1:0] mash_q_data,
-    output tri                                    dsm_i_data,
-    output tri                                    dsm_q_data,
-    output tri                                    upconverter_out
+    input  tri                                           aclk,
+    input  tri                                           xclk,
+    input  tri                                           rst_n,
+    input  tri        [ACC_FRAC_WIDTH+ACC_INT_WIDTH-1:0] nco_step,
+    input  tri                                           nco_step_enable,
+    input  tri                                           dither_enable,
+    output tri        [                       WIDTH-1:0] tx_i_data,
+    output tri        [                       WIDTH-1:0] tx_q_data,
+    output tri signed [                     MASH_BW-1:0] mash_i_data,
+    output tri signed [                     MASH_BW-1:0] mash_q_data,
+    output tri                                           dsm_i_data,
+    output tri                                           dsm_q_data,
+    output tri                                           upconverter_out
 );
 
   // nco logic
@@ -59,9 +59,8 @@ module dsm_core #(
 
   // unsigned nco inst
   unco wave_q_gen (
-      .aclk  (aclk),
+      .aclk(aclk),
       .arst_n(rst_n),
-
       .phase_shift(32'd0),
       .dither_enable(dither_enable),
       .s_axis_data_tdata(nco_step),

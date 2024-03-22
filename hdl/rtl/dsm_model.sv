@@ -10,19 +10,19 @@ module dsm_model #(
     parameter integer ACC_INT_WIDTH = 8
 
 ) (
-    input  tri                                    aclk,
-    input  tri                                    xclk,
-    input  tri                                    rst_n,
-    input  tri [ACC_FRAC_WIDTH+ACC_INT_WIDTH-1:0] nco_step,
-    input  tri                                    nco_step_enable,
-    input  tri                                    dither_enable,
-    output tri [                       WIDTH-1:0] tx_i_data,
-    output tri [                       WIDTH-1:0] tx_q_data,
-    output tri [                     MASH_BW-1:0] mash_i_data,
-    output tri [                     MASH_BW-1:0] mash_q_data,
-    output tri                                    dsm_i_data,
-    output tri                                    dsm_q_data,
-    output tri                                    upconverter_out
+    input  tri                                           aclk,
+    input  tri                                           xclk,
+    input  tri                                           rst_n,
+    input  tri        [ACC_FRAC_WIDTH+ACC_INT_WIDTH-1:0] nco_step,
+    input  tri                                           nco_step_enable,
+    input  tri                                           dither_enable,
+    output tri        [                       WIDTH-1:0] tx_i_data,
+    output tri        [                       WIDTH-1:0] tx_q_data,
+    output tri signed [                     MASH_BW-1:0] mash_i_data,
+    output tri signed [                     MASH_BW-1:0] mash_q_data,
+    output tri                                           dsm_i_data,
+    output tri                                           dsm_q_data,
+    output tri                                           upconverter_out
 );
 
   // nco logic

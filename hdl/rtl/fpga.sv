@@ -26,8 +26,8 @@ module fpga (
   logic        [    WIDTH-1:0] tx_i_data;
   logic        [    WIDTH-1:0] tx_q_data;
 
-  logic signed [  MASH_BW-1:0] mash_i_data;
-  logic signed [  MASH_BW-1:0] mash_q_data;
+  tri signed [  MASH_BW-1:0] mash_i_data;
+  tri signed [  MASH_BW-1:0] mash_q_data;
 
   logic                        dsm_i_data;
   logic                        dsm_q_data;
@@ -101,21 +101,21 @@ module fpga (
       .LOCKED(mmcm_locked)
   );
 
-  // LOCKED is dessarted if the input clock stop sor phase alignment is violated
-  always_ff @(posedge clk_100mhz_mmcm_out) begin
-    if (RST) begin
-      rst_100mhz <= 1'b0;
-    end else begin
-      rst_100mhz <= !mmcm_locked;
-    end
-  end
+//  // LOCKED is dessarted if the input clock stop sor phase alignment is violated
+//  always_ff @(posedge clk_100mhz_mmcm_out) begin
+//    if (RST) begin
+//      rst_100mhz <= 1'b0;
+//    end else begin
+//      rst_100mhz <= mmcm_locked;
+//    end
+//  end
 
   // frequency control
   jtag_axil_adapter #(
       .WIDTH(ACC_WIDTH)
   ) fctrl (
       .aclk(clk_100mhz_mmcm_out),
-      .arst_n(rst_100mhz),
+      .arst_n(RST),
       .m_axil_data(step),
       .m_axil_addr(step_addr)
   );
@@ -130,7 +130,7 @@ module fpga (
   ) rf_dac (
       .aclk(clk_100mhz_mmcm_out),
       .xclk(clk_200mhz_mmcm_out),
-      .rst_n(rst_100mhz),
+      .rst_n(RST),
       .nco_step(step),
       .nco_step_enable(1'b1),
       .dither_enable(SW_0),

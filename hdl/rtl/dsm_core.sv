@@ -44,17 +44,6 @@ module dsm_core #(
   logic dsm_q_data_tready;
 
 
-  // frequency control
-  jtag_axil_adapter #(
-      .WIDTH(ACC_FRAC_WIDTH + ACC_INT_WIDTH)
-  ) fctrl (
-      .aclk(aclk),
-      .arst_n(rst_n),
-      .m_axil_data(nco_step),
-      .m_axil_addr()
-  );
-
-
   // unsigned nco inst
   unco wave_i_gen (
       .aclk(aclk),

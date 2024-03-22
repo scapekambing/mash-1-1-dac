@@ -18,8 +18,8 @@ module fpga (
   localparam integer ACC_WIDTH = ACC_INT_WIDTH + ACC_FRAC_WIDTH;
 
   // frequency control
-  var logic    [ACC_WIDTH-1:0] step;
-  var logic    [ACC_WIDTH-1:0] step_addr;
+  tri          [ACC_WIDTH-1:0] step;
+  tri          [ACC_WIDTH-1:0] step_addr;
 
 
   // dsm core
@@ -114,8 +114,8 @@ module fpga (
   jtag_axil_adapter #(
       .WIDTH(ACC_WIDTH)
   ) fctrl (
-      .aclk(CLK100MHZ),
-      .arst_n(RST),
+      .aclk(clk_100mhz_mmcm_out),
+      .arst_n(rst_100mhz),
       .m_axil_data(step),
       .m_axil_addr(step_addr)
   );

@@ -63,6 +63,7 @@ module tb_dsm_model();
     .rst_n(rst_n),
     .nco_step(step),
     .nco_step_enable(1),
+    .dither_enable(1'b0),
     .tx_i_data(tx_i_data),
     .tx_q_data(tx_q_data),
     .mash_i_data(mash_i_data),

@@ -68,6 +68,7 @@ module tb_upconverter ();
 
       .s_axis_data_tdata (step),
       .s_axis_data_tvalid(step_enable),
+      .dither_enable(1'b0),
 
       .s_axis_data_tready(tx_data_tready),
 

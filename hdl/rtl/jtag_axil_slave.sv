@@ -1,43 +1,46 @@
-module jtag_axil_slave #(
+/* verilog_format: off */
+`timescale 1ns / 1ns
+`default_nettype none
+/* verilog_format: on */
 
-    /////////////////////////////////////
-    // ADDR MASK ////////////////////////
-    /////////////////////////////////////
-    parameter ADDR_MASK = 32'h0
+module jtag_axil_slave #(
+    parameter integer ADDR_MASK = 32'h0,
+    parameter integer WIDTH = 32
 
 ) (
-    input               s_axi_aclk,
-    input               s_axi_aresetn,
-    input        [31:0] s_axi_awaddr,
-    input               s_axi_awvalid,
-    output logic        s_axi_awready,
-    input        [31:0] s_axi_wdata,
-    input               s_axi_wvalid,
-    output logic        s_axi_wready,
-    output       [ 1:0] s_axi_bresp,
-    output logic        s_axi_bvalid,
-    input               s_axi_bready,
-    input        [31:0] s_axi_araddr,
-    input               s_axi_arvalid,
-    output logic        s_axi_arready,
-    output logic [31:0] s_axi_rdata,
-    output       [ 1:0] s_axi_rresp,
-    output logic        s_axi_rvalid,
-    input               s_axi_rready,
-    output       [31:0] data_out,
-    output       [31:0] addr_out
+    input      tri               s_axi_aclk,
+    input      tri               s_axi_aresetn,
+    input      tri   [WIDTH-1:0] s_axi_awaddr,
+    input      tri               s_axi_awvalid,
+    output var logic             s_axi_awready,
+    input      tri   [WIDTH-1:0] s_axi_wdata,
+    input      tri               s_axi_wvalid,
+    output var logic             s_axi_wready,
+    output     tri   [      1:0] s_axi_bresp,
+    output var logic             s_axi_bvalid,
+    input      tri               s_axi_bready,
+    input      tri   [WIDTH-1:0] s_axi_araddr,
+    input      tri               s_axi_arvalid,
+    output var logic             s_axi_arready,
+    output var logic [WIDTH-1:0] s_axi_rdata,
+    output     tri   [      1:0] s_axi_rresp,
+    output var logic             s_axi_rvalid,
+    input      tri               s_axi_rready,
+    output     tri   [WIDTH-1:0] data_out,
+    output     tri   [WIDTH-1:0] addr_out
 );
 
   /////////////////////////////////////
   // WRITE DATA ///////////////////////
   /////////////////////////////////////
 
-  logic addr_done;
-  logic data_done;
+  var logic addr_done;
+  var logic data_done;
+  tri data_valid;
 
   // Flip-flops for latching data
-  logic [31:0] data_latch;
-  logic [31:0] addr_latch;
+  var logic [WIDTH-1:0] data_latch;
+  var logic [WIDTH-1:0] addr_latch;
 
   /////////////////////////////////////
   // BACKEND //////////////////////////
@@ -155,3 +158,5 @@ module jtag_axil_slave #(
   assign s_axi_rresp = 2'b00;  // OKAY
 
 endmodule
+
+`resetall

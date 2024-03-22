@@ -1,24 +1,26 @@
-`timescale 1ns / 1ps
+/* verilog_format: off */
+`timescale 1ns / 1ns
+`default_nettype none
+/* verilog_format: on */
 
-// unsigned nco
-module axis_unco (
-    input               aclk,
-    input               arst_n,
-    input        [31:0] phase_shift,
-    input               dither_enable,
-    input        [31:0] s_axis_data_tdata,
-    input               s_axis_data_tvalid,
-    output logic        s_axis_data_tready,
-    output logic [15:0] m_axis_data_tdata,
-    output logic        m_axis_data_tvalid
+module unco (
+    input      tri          aclk,
+    input      tri          arst_n,
+    input      tri   [31:0] phase_shift,
+    input      tri          dither_enable,
+    input      tri   [31:0] s_axis_data_tdata,
+    input      tri          s_axis_data_tvalid,
+    output var logic        s_axis_data_tready,
+    output var logic [15:0] m_axis_data_tdata,
+    output var logic        m_axis_data_tvalid
 );
 
-  localparam ACC_INT_WIDTH = 8;
-  localparam ACC_FRAC_WIDTH = 24;
-  localparam WIDTH = 16;
+  localparam integer ACC_INT_WIDTH = 8;
+  localparam integer ACC_FRAC_WIDTH = 24;
+  localparam integer WIDTH = 16;
 
   // phase accumulator widths
-  localparam ACC_WIDTH = ACC_INT_WIDTH + ACC_FRAC_WIDTH;
+  localparam integer ACC_WIDTH = ACC_INT_WIDTH + ACC_FRAC_WIDTH;
 
 
   // sin_lut generator signals
@@ -334,3 +336,5 @@ module axis_unco (
     sin_lut[255] = 32365;
   end
 endmodule
+
+`resetall

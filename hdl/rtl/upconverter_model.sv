@@ -1,11 +1,14 @@
-`timescale 1ns / 1ps
+/* verilog_format: off */
+`timescale 1ns / 1ns
+`default_nettype none
+/* verilog_format: on */
 
-module upconverter (
-    input    clk,
-    input    rst_n,
-    input    data_i,
-    input    data_q,
-    output logic data_out
+module upconverter_model (
+    input tri clk,
+    input tri rst_n,
+    input tri data_i,
+    input tri data_q,
+    output var logic data_out
 );
 
   var logic [1:0] xcvr_out;
@@ -37,3 +40,5 @@ module upconverter (
   end
 
 endmodule
+
+`resetall

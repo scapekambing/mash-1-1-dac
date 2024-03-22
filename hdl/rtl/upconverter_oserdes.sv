@@ -1,12 +1,15 @@
-`timescale 1ns / 1ps
+/* verilog_format: off */
+`timescale 1ns / 1ns
+`default_nettype none
+/* verilog_format: on */
 
-module oserdes_upconverter (
-    input    iclk, // same as aclk
-    input    oclk, // 2x the frequency of aclk
-    input    rst_n,
-    input    data_i,
-    input    data_q,
-    output   upconverter_out
+module upconverter_oserdes (
+    input tri iclk,  // same as aclk
+    input tri oclk,  // 2x the frequency of aclk
+    input tri rst_n,
+    input tri data_i,
+    input tri data_q,
+    output tri upconverter_out
 );
 
   // OSERDES inst
@@ -41,3 +44,5 @@ module oserdes_upconverter (
   );
 
 endmodule
+
+`resetall

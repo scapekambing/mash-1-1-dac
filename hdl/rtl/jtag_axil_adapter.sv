@@ -1,11 +1,16 @@
+/* verilog_format: off */
+`timescale 1ns / 1ns
+`default_nettype none
+/* verilog_format: on */
+
 module jtag_axil_adapter #(
-    ADDR_MASK = 32'hC,
-    WIDTH = 8
+    parameter integer ADDR_MASK = 32'hC,
+    parameter integer WIDTH = 32
 ) (
-    input              aclk,
-    input              arst_n,
-    output [WIDTH-1:0] m_axil_data,
-    output [WIDTH-1:0] m_axil_addr
+    input  tri             aclk,
+    input  tri             arst_n,
+    output tri [WIDTH-1:0] m_axil_data,
+    output tri [WIDTH-1:0] m_axil_addr
 );
 
   logic [WIDTH-1:0] jtag_axil_data;
@@ -65,7 +70,8 @@ module jtag_axil_adapter #(
   );
 
   jtag_axil_slave #(
-      .ADDR_MASK(ADDR_MASK)
+      .ADDR_MASK(ADDR_MASK),
+      .WIDTH(WIDTH)
   ) jtag_axil_slave_inst (
       .s_axi_aclk   (aclk),
       .s_axi_aresetn(arst_n),
@@ -90,3 +96,5 @@ module jtag_axil_adapter #(
   );
 
 endmodule
+
+`resetall

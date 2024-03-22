@@ -6,7 +6,7 @@
 module mod2 #(
     parameter integer WIDTH = 16,
     parameter integer EXT_ACC_1 = 2,
-    parameter integer EXT_ACC_2 = 8
+    parameter integer EXT_ACC_2 = 4
 ) (
     input tri aclk,
     input tri arst_n,
@@ -38,25 +38,25 @@ module mod2 #(
         // then that means we overshot 
         // the desired val, so subtract the full scale value (exlcude sign)
         dsm_acc_1 = dsm_acc_1 + dsm_in_extended  // sigma
-                       - (2 ** (WIDTH - 2));  // delta
+                       - (2 ** (WIDTH - 1));  // delta
 
         dsm_acc_2 = dsm_acc_2 + dsm_acc_1  // sigma
-                       - (2 ** (WIDTH - 2));  // delta 
+                       - (2 ** (WIDTH - 1));  // delta 
       end else begin
         // if the last output was 0, then that means we undershot
         // the desired val, so add the full scale value (exlcude sign)
         dsm_acc_1 = dsm_acc_1 + dsm_in_extended  // sigma
-                      + (2 ** (WIDTH - 2));  // delta
+                      + (2 ** (WIDTH - 1)-1);  // delta
 
         dsm_acc_2 = dsm_acc_2 + dsm_acc_1  // sigma
-                      + (2 ** (WIDTH - 2));  // delta
+                      + (2 ** (WIDTH - 1)-1);  // delta
       end
       // verilog_format: on //
 
       // output ~MSB
       // since we are using signed arithmetic, a 1 MSB corresponds to 0 unsigned
       // and a 0 MSB corresponds to 1 unsigned
-      m_axis_data_tdata  <= ~dsm_acc_2[WIDTH+EXT_ACC_2-1];
+      m_axis_data_tdata = ~dsm_acc_2[WIDTH+EXT_ACC_2-1];
 
       m_axis_data_tvalid <= 1;
     end

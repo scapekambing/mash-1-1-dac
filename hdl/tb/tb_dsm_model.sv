@@ -1,8 +1,12 @@
-`timescale 1ns/1ns
+/* verilog_format: off */
+`resetall
+`timescale 1ns / 1ns
+`default_nettype none
+/* verilog_format: on */
 
 `include "vunit_defines.svh"
 
-module tb_dsm_core();
+module tb_dsm_model();
 
   
   integer i;
@@ -17,7 +21,7 @@ module tb_dsm_core();
   logic xclk;
   logic rst_n;
 
-  localparam MASH_BW = 7;
+  localparam MASH_BW = 4;
 
   // nco params
   localparam WIDTH = 16;
@@ -52,8 +56,8 @@ module tb_dsm_core();
     #(clk_period/8) xclk = ~xclk;
   end
 
-  // dsm core
-  dsm_core dsm_core_inst (
+  // dsm model
+  dsm_model dsm_model1_inst (
     .aclk(aclk),
     .xclk(xclk),
     .rst_n(rst_n),
@@ -104,3 +108,5 @@ module tb_dsm_core();
 
 end
 endmodule
+
+`resetall

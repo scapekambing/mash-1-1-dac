@@ -1,4 +1,8 @@
+/* verilog_format: off */
+`resetall
 `timescale 1ns / 1ns
+`default_nettype none
+/* verilog_format: on */
 
 `include "vunit_defines.svh"
 
@@ -40,7 +44,6 @@ module tb_upconverter ();
   */
 
   // nco logic
-  // logic         [WIDTH-1:0]       tx_data; 
   logic signed [    WIDTH-1:0] tx_data;
   logic                        tx_data_tvalid;
 
@@ -66,16 +69,16 @@ module tb_upconverter ();
       .s_axis_data_tdata (step),
       .s_axis_data_tvalid(step_enable),
 
-      .s_axis_data_tready(),
+      .s_axis_data_tready(tx_data_tready),
 
       .m_axis_data_tdata (tx_data),
       .m_axis_data_tvalid(tx_data_tvalid)
   );
 
-  axis_first_order_dsm_dac #(
+  mod1 #(
       .WIDTH(WIDTH),
       .EXT  (1)
-  ) dsm (
+  ) mod1_i (
       .aclk  (aclk),
       .arst_n(arst_n),
 
@@ -84,7 +87,7 @@ module tb_upconverter ();
       .s_axis_data_tvalid(tx_data_tvalid),
 
       // slave outputs
-      .s_axis_data_tready(),
+      .s_axis_data_tready(dsm_data_tready),
 
       // master outputs
       .m_axis_data_tdata (dsm_data),
@@ -119,17 +122,17 @@ module tb_upconverter ();
       .s_axis_data_tdata (step),
       .s_axis_data_tvalid(step_enable),
 
-      .s_axis_data_tready(),
+      .s_axis_data_tready(tx2_data_tready),
 
       .m_axis_data_tdata (tx2_data),
       .m_axis_data_tvalid(tx2_data_tvalid)
   );
 
 
-  axis_first_order_dsm_dac #(
+  mod1 #(
       .WIDTH(WIDTH),
       .EXT  (1)
-  ) dsm2 (
+  ) mod1_q (
       .aclk  (aclk),
       .arst_n(arst_n),
 
@@ -138,7 +141,7 @@ module tb_upconverter ();
       .s_axis_data_tvalid(tx2_data_tvalid),
 
       // slave outputs
-      .s_axis_data_tready(),
+      .s_axis_data_tready(dsm2_data),
 
       // master outputs
       .m_axis_data_tdata (dsm2_data),
@@ -192,3 +195,5 @@ module tb_upconverter ();
   end
 
 endmodule
+
+`resetall

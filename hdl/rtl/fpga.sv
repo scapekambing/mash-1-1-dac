@@ -1,49 +1,50 @@
+/* verilog_format: off */
+`timescale 1ns / 1ns
+`default_nettype none
+/* verilog_format: on */
+
 module fpga (
-    input  CLK100MHZ,
-    input  RST,
-    input  SW_0,
-    output upconverter_out
+    input  tri CLK100MHZ,
+    input  tri RST,
+    input  tri SW_0,
+    output tri upconverter_out
 );
 
+  localparam integer MASH_BW = 3;
+  localparam integer WIDTH = 16;
+  localparam integer LUT_DEPTH = 2 ** 8;
+  localparam integer ACC_FRAC_WIDTH = 24;
+  localparam integer ACC_INT_WIDTH = $clog2(LUT_DEPTH);
+  localparam integer ACC_WIDTH = ACC_INT_WIDTH + ACC_FRAC_WIDTH;
 
-  // bit widths
-  localparam MASH_BW = 3;
-  localparam WIDTH = 16;
-  localparam LUT_DEPTH = 2 ** 8;
-  localparam ACC_FRAC_WIDTH = 24;
-  localparam ACC_INT_WIDTH = $clog2(LUT_DEPTH);
-  localparam ACC_WIDTH = ACC_INT_WIDTH + ACC_FRAC_WIDTH;
+  // frequency control
+  var logic    [ACC_WIDTH-1:0] step;
+  var logic    [ACC_WIDTH-1:0] step_addr;
 
 
-  logic        [  WIDTH-1:0] tx_i_data;
-  logic        [  WIDTH-1:0] tx_q_data;
+  // dsm core
+  logic        [    WIDTH-1:0] tx_i_data;
+  logic        [    WIDTH-1:0] tx_q_data;
 
-  logic signed [MASH_BW-1:0] mash_i_data;
-  logic signed [MASH_BW-1:0] mash_q_data;
+  logic signed [  MASH_BW-1:0] mash_i_data;
+  logic signed [  MASH_BW-1:0] mash_q_data;
 
-  logic                      dsm_i_data;
-  logic                      dsm_q_data;
+  logic                        dsm_i_data;
+  logic                        dsm_q_data;
 
 
   /* 
   * clock generation
   */
-
-  logic                      clk_ibufg;
-
-  // Internal 125 MHz clock
-  logic                      clk_200mhz_mmcm_out;
-  logic                      clk_int;
-  logic                      rst_int;
-
-  logic                      mmcm_rst = ~RST;
-  logic                      mmcm_locked;
-  logic                      mmcm_clkfb;
-
-  logic                      clk_100mhz_mmcm_out;
+  logic                        clk_200mhz_mmcm_out;
+  logic                        mmcm_rst = ~RST;
+  logic                        mmcm_locked;
+  logic                        mmcm_clkfb;
+  logic                        clk_100mhz_mmcm_out;
+  logic                        rst_100mhz;
 
   // MMCM instance
-  // 100 MHz in, 400 and 100 MHz out
+  // 100 MHz in, 200 and 100 MHz out
   // PFD range: 10 MHz to 550 MHz
   // VCO range: 600 MHz to 1200 MHz
   // M = 8, D = 1 sets Fvco = 800 MHz (in range)
@@ -100,20 +101,36 @@ module fpga (
       .LOCKED(mmcm_locked)
   );
 
+  // LOCKED is dessarted if the input clock stop sor phase alignment is violated
+  always_ff @(posedge clk_100mhz_mmcm_out) begin
+    if (RST) begin
+      rst_100mhz <= 1'b0;
+    end else begin
+      rst_100mhz <= !mmcm_locked;
+    end
+  end
+
   // frequency control
-  logic [ACC_WIDTH-1:0] step;
+  jtag_axil_adapter #(
+      .WIDTH(ACC_WIDTH)
+  ) fctrl (
+      .aclk(CLK100MHZ),
+      .arst_n(RST),
+      .m_axil_data(step),
+      .m_axil_addr(step_addr)
+  );
 
 
   // dsm core
-  top #(
+  dsm_core #(
       .MASH_BW(MASH_BW),
       .WIDTH(WIDTH),
       .ACC_FRAC_WIDTH(ACC_FRAC_WIDTH),
       .ACC_INT_WIDTH(ACC_INT_WIDTH)
-  ) top_inst (
+  ) rf_dac (
       .aclk(clk_100mhz_mmcm_out),
       .xclk(clk_200mhz_mmcm_out),
-      .rst_n(RST),
+      .rst_n(rst_100mhz),
       .nco_step(step),
       .nco_step_enable(1'b1),
       .dither_enable(SW_0),
@@ -126,5 +143,6 @@ module fpga (
       .upconverter_out(upconverter_out)
   );
 
-
 endmodule
+
+`resetall

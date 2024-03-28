@@ -1,7 +1,7 @@
 import math
 
 TABLE_SIZE = 2**8
-SCALE = 32767*0.75
+SCALE = 32767*0.5
 LINE_VALUES = 1
 
 data = [0] * TABLE_SIZE

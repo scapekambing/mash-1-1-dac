@@ -62,7 +62,7 @@ module tb_dsm_model();
     .WIDTH(WIDTH),
     .ACC_FRAC_WIDTH(ACC_FRAC_WIDTH),
     .ACC_INT_WIDTH(ACC_INT_WIDTH)
-  ) dsm_model1_inst (
+  ) dsm_model_inst (
     .aclk(aclk),
     .xclk(xclk),
     .rst_n(rst_n),
@@ -94,7 +94,7 @@ module tb_dsm_model();
     #(clk_period);
     rst_n = 1;
     step_enable = 1;
-    step = (1 << 22); //97KHZ
+    step = (1 << 20); //97KHZ
     // step = 24'd85900;
     // step = step * 20; // 1MHz
     // step = 1'b1 << (32-8-1); 

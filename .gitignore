@@ -4,6 +4,11 @@ hdl/vunit_out
 
 python/vunit/__pycache__
 python/vunit/vunit_out
+python/jtag-ctrl/pysct
 
 /vunit_out
 /__pycache__
+
+/.vscode
+
+/bitstreams

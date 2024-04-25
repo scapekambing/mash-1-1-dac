@@ -1,15 +1,15 @@
 import math
 
 TABLE_SIZE = 2**8
-SCALE = 32767*0.75
+SCALE = (2**16-1)
 LINE_VALUES = 1
 
 data = [0] * TABLE_SIZE
 
 for i in range(TABLE_SIZE):
     angle = (i * 2 + 1.0) / (TABLE_SIZE * 2)
-    s = math.sin(angle * math.pi * 2.0)
-    data[i] = round(SCALE * (s+1))
+    s = SCALE*0.25*math.sin(angle * math.pi * 2.0) + SCALE/2
+    data[i] = round(s)
 
 for i in range(TABLE_SIZE):
     if i % LINE_VALUES == 0:

@@ -38,6 +38,11 @@ module tb_mash11();
 
   localparam MASH_BW = 4;
  
+  // efm logic
+  logic efm_data;
+  logic efm_data_tvalid;
+  logic efm_data_tready;
+
   // dsm logic
   logic signed [MASH_BW-1:0] mash_data;
   logic mash_data_tvalid;
@@ -50,7 +55,7 @@ module tb_mash11();
 
 
   // clock generation
-  localparam clk_period = 10;
+  localparam clk_period = 8;
   always begin
     #(clk_period/2) aclk = ~aclk;
   end
@@ -72,6 +77,26 @@ module tb_mash11();
     .m_axis_data_tvalid(tx_data_tvalid)    
   ); 
 
+  // first order dsm
+  axis_efm # (
+    .WIDTH(WIDTH)
+  )
+  dac (
+    .aclk(aclk),
+    .arst_n(arst_n),
+
+    // slave inputs
+    .s_axis_data_tdata  (tx_data),
+    .s_axis_data_tvalid (tx_data_tvalid),
+    
+    // slave outputs
+    .s_axis_data_tready(efm_data_tready),
+    
+    // master outputs
+    .m_axis_data_tdata(efm_data),
+    .m_axis_data_tvalid(efm_data_tvalid)
+  );
+
   // mash inst
   mash11 #(
     .WIDTH(WIDTH),
@@ -92,7 +117,7 @@ module tb_mash11();
     .m_axis_data_tvalid(mash_data_tvalid)
   );
 
-  mod2 # (
+  efm2 # (
 		.WIDTH(MASH_BW)
   ) mod2_inst (
 		.aclk(aclk),
@@ -106,46 +131,6 @@ module tb_mash11();
 
 
 `TEST_SUITE begin
-
-  // `TEST_CASE("op") begin
-  //   // init vals
-  //   aclk = 0;
-  //   i = 0;
-  //   arst_n = 0;
-  //   step_enable = 0;
-  //   step = 0;
-
-  //   // reset pulse
-  //   #(clk_period);
-  //   arst_n = 1;
-  //   step_enable = 1;
-  //   step = 24'd85900;
-  //   step = step*freq_multiplier;
-
-  //   // 2khz
-  //   while(1) begin
-  //     if($time==t_elapsed+clk_period) begin
-  //       break;
-  //     end
-  //     else begin
-  //       i = i + 1;
-  //       #(clk_period);
-  //     end
-  //   end
-
-  //   // 8khz
-  //   step = step*4;
-  //   while(1) begin
-  //     if($time==2*t_elapsed+clk_period) begin
-  //       break;
-  //     end
-  //     else begin
-  //       i = i + 1;
-  //       #(clk_period);
-  //     end
-  //   end
-
-  // end
 
   `TEST_CASE("plot") begin
     // init vals
@@ -166,11 +151,11 @@ module tb_mash11();
 
 
     while(1) begin
-      if($time==2*t_elapsed+clk_period) begin
+      if($time==3*t_elapsed+clk_period) begin
         break;
       end
       else begin
-        $display("%d, %d, %d, %b ", i, tx_data, mash_data, dsm2_data);
+        $display("%d, %d, %b, %d, %b ", i, tx_data, efm_data, mash_data, dsm2_data);
         i = i + 1;
         #(clk_period);
       end

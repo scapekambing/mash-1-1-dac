@@ -35,7 +35,7 @@ module upconverter_oserdes (
       .D2(~data_q),
       .D3(~data_i),
       .D4(data_q),
-      .TCE(1'b1),
+      .TCE(1'b0),
       .OCE(1'b1),
       .TBYTEIN(1'b0),
       .RST(~rst_n),

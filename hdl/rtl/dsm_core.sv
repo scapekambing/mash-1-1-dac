@@ -4,25 +4,25 @@
 /* verilog_format: on */
 
 module dsm_core #(
-    parameter integer MASH_BW = 5,
+    parameter integer MASH_BW = 4,
     parameter integer WIDTH = 16,
     parameter integer ACC_FRAC_WIDTH = 24,
     parameter integer ACC_INT_WIDTH = 8
 
 ) (
-    input  tri                                    aclk,
-    input  tri                                    xclk,
-    input  tri                                    rst_n,
-    input  tri [ACC_FRAC_WIDTH+ACC_INT_WIDTH-1:0] nco_step,
-    input  tri                                    nco_step_enable,
-    input  tri                                    dither_enable,
-    output tri [                       WIDTH-1:0] tx_i_data,
-    output tri [                       WIDTH-1:0] tx_q_data,
-    output tri [                     MASH_BW-1:0] mash_i_data,
-    output tri [                     MASH_BW-1:0] mash_q_data,
-    output tri                                    dsm_i_data,
-    output tri                                    dsm_q_data,
-    output tri                                    upconverter_out
+    input  tri                                           aclk,
+    input  tri                                           xclk,
+    input  tri                                           rst_n,
+    input  tri        [ACC_FRAC_WIDTH+ACC_INT_WIDTH-1:0] nco_step,
+    input  tri                                           nco_step_enable,
+    input  tri                                           dither_enable,
+    output tri        [                       WIDTH-1:0] tx_i_data,
+    output tri        [                       WIDTH-1:0] tx_q_data,
+    output tri signed [                     MASH_BW-1:0] mash_i_data,
+    output tri signed [                     MASH_BW-1:0] mash_q_data,
+    output tri                                           dsm_i_data,
+    output tri                                           dsm_q_data,
+    output tri                                           upconverter_out
 );
 
   // nco logic
@@ -44,17 +44,6 @@ module dsm_core #(
   logic dsm_q_data_tready;
 
 
-  // frequency control
-  jtag_axil_adapter #(
-      .WIDTH(ACC_FRAC_WIDTH + ACC_INT_WIDTH)
-  ) fctrl (
-      .aclk(aclk),
-      .arst_n(rst_n),
-      .m_axil_data(nco_step),
-      .m_axil_addr()
-  );
-
-
   // unsigned nco inst
   unco wave_i_gen (
       .aclk(aclk),
@@ -70,9 +59,8 @@ module dsm_core #(
 
   // unsigned nco inst
   unco wave_q_gen (
-      .aclk  (aclk),
+      .aclk(aclk),
       .arst_n(rst_n),
-
       .phase_shift(32'd0),
       .dither_enable(dither_enable),
       .s_axis_data_tdata(nco_step),
@@ -112,7 +100,7 @@ module dsm_core #(
 
 
   // dsm inst
-  mod2 #(
+  efm2 #(
       .WIDTH(MASH_BW)
   ) dsm_i (
       .aclk(aclk),
@@ -124,7 +112,7 @@ module dsm_core #(
       .m_axis_data_tvalid(dsm_i_data_tvalid)
   );
 
-  mod2 #(
+  efm2 #(
       .WIDTH(MASH_BW)
   ) dsm_q (
       .aclk(aclk),

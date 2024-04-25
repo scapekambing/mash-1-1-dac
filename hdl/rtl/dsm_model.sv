@@ -4,25 +4,25 @@
 /* verilog_format: on */
 
 module dsm_model #(
-    parameter integer MASH_BW = 5,
+    parameter integer MASH_BW = 3,
     parameter integer WIDTH = 16,
     parameter integer ACC_FRAC_WIDTH = 24,
     parameter integer ACC_INT_WIDTH = 8
 
 ) (
-    input  tri                                    aclk,
-    input  tri                                    xclk,
-    input  tri                                    rst_n,
-    input  tri [ACC_FRAC_WIDTH+ACC_INT_WIDTH-1:0] nco_step,
-    input  tri                                    nco_step_enable,
-    input  tri                                    dither_enable,
-    output tri [                       WIDTH-1:0] tx_i_data,
-    output tri [                       WIDTH-1:0] tx_q_data,
-    output tri [                     MASH_BW-1:0] mash_i_data,
-    output tri [                     MASH_BW-1:0] mash_q_data,
-    output tri                                    dsm_i_data,
-    output tri                                    dsm_q_data,
-    output tri                                    upconverter_out
+    input  tri                                           aclk,
+    input  tri                                           xclk,
+    input  tri                                           rst_n,
+    input  tri        [ACC_FRAC_WIDTH+ACC_INT_WIDTH-1:0] nco_step,
+    input  tri                                           nco_step_enable,
+    input  tri                                           dither_enable,
+    output tri        [                       WIDTH-1:0] tx_i_data,
+    output tri        [                       WIDTH-1:0] tx_q_data,
+    output tri signed [                     MASH_BW-1:0] mash_i_data,
+    output tri signed [                     MASH_BW-1:0] mash_q_data,
+    output tri                                           dsm_i_data,
+    output tri                                           dsm_q_data,
+    output tri                                           upconverter_out
 );
 
   // nco logic
@@ -100,7 +100,7 @@ module dsm_model #(
 
 
   // dsm inst
-  mod2 #(
+  efm2 #(
       .WIDTH(MASH_BW)
   ) dsm_i (
       .aclk(aclk),
@@ -112,7 +112,7 @@ module dsm_model #(
       .m_axis_data_tvalid(dsm_i_data_tvalid)
   );
 
-  mod2 #(
+  efm2 #(
       .WIDTH(MASH_BW)
   ) dsm_q (
       .aclk(aclk),
@@ -125,7 +125,7 @@ module dsm_model #(
   );
 
 
-  upconverter upconverter_inst (
+  upconverter_model upconverter_inst (
       .clk(xclk),
       .rst_n(rst_n),
       .data_i(dsm_i_data),

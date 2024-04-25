@@ -22,6 +22,7 @@ module tb_dsm_model();
   logic rst_n;
 
   localparam MASH_BW = 4;
+  // localparam MASH_BW = 5;
 
   // nco params
   localparam WIDTH = 16;
@@ -53,7 +54,7 @@ module tb_dsm_model();
   end
 
   always begin
-    #(clk_period/8) xclk = ~xclk;
+    #(clk_period/2/4) xclk = ~xclk;
   end
 
   // dsm model
@@ -94,7 +95,7 @@ module tb_dsm_model();
     #(clk_period);
     rst_n = 1;
     step_enable = 1;
-    step = (1 << 22); //97KHZ
+    step = (1 << 24);
     // step = 24'd85900;
     // step = step * 20; // 1MHz
     // step = 1'b1 << (32-8-1); 

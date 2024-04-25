@@ -10,7 +10,7 @@ module fpga (
     output tri upconverter_out
 );
 
-  localparam integer MASH_BW = 3;
+  localparam integer MASH_BW = 4;
   localparam integer WIDTH = 16;
   localparam integer LUT_DEPTH = 2 ** 8;
   localparam integer ACC_FRAC_WIDTH = 24;
@@ -18,30 +18,30 @@ module fpga (
   localparam integer ACC_WIDTH = ACC_INT_WIDTH + ACC_FRAC_WIDTH;
 
   // frequency control
-  var logic    [ACC_WIDTH-1:0] step;
-  var logic    [ACC_WIDTH-1:0] step_addr;
+  tri        [ACC_WIDTH-1:0] step;
+  tri        [ACC_WIDTH-1:0] step_addr;
 
 
   // dsm core
-  logic        [    WIDTH-1:0] tx_i_data;
-  logic        [    WIDTH-1:0] tx_q_data;
+  logic      [    WIDTH-1:0] tx_i_data;
+  logic      [    WIDTH-1:0] tx_q_data;
 
-  logic signed [  MASH_BW-1:0] mash_i_data;
-  logic signed [  MASH_BW-1:0] mash_q_data;
+  tri signed [  MASH_BW-1:0] mash_i_data;
+  tri signed [  MASH_BW-1:0] mash_q_data;
 
-  logic                        dsm_i_data;
-  logic                        dsm_q_data;
+  logic                      dsm_i_data;
+  logic                      dsm_q_data;
 
 
   /* 
   * clock generation
   */
-  logic                        clk_200mhz_mmcm_out;
-  logic                        mmcm_rst = ~RST;
-  logic                        mmcm_locked;
-  logic                        mmcm_clkfb;
-  logic                        clk_100mhz_mmcm_out;
-  logic                        rst_100mhz;
+  logic                      clk_200mhz_mmcm_out;
+  logic                      mmcm_rst = ~RST;
+  logic                      mmcm_locked;
+  logic                      mmcm_clkfb;
+  logic                      clk_100mhz_mmcm_out;
+  logic                      rst_100mhz;
 
   // MMCM instance
   // 100 MHz in, 200 and 100 MHz out
@@ -101,14 +101,14 @@ module fpga (
       .LOCKED(mmcm_locked)
   );
 
-  // LOCKED is dessarted if the input clock stop sor phase alignment is violated
-  always_ff @(posedge clk_100mhz_mmcm_out) begin
-    if (RST) begin
-      rst_100mhz <= 1'b0;
-    end else begin
-      rst_100mhz <= !mmcm_locked;
-    end
-  end
+    // LOCKED is dessarted if the input clock stop sor phase alignment is violated
+//    always_ff @(posedge clk_100mhz_mmcm_out) begin
+//      if (RST) begin
+//        rst_100mhz <= 1'b0;
+//      end else begin
+//        rst_100mhz <= mmcm_locked;
+//      end
+//    end
 
   // frequency control
   jtag_axil_adapter #(
@@ -120,7 +120,6 @@ module fpga (
       .m_axil_addr(step_addr)
   );
 
-
   // dsm core
   dsm_core #(
       .MASH_BW(MASH_BW),
@@ -130,7 +129,7 @@ module fpga (
   ) rf_dac (
       .aclk(clk_100mhz_mmcm_out),
       .xclk(clk_200mhz_mmcm_out),
-      .rst_n(rst_100mhz),
+      .rst_n(RST),
       .nco_step(step),
       .nco_step_enable(1'b1),
       .dither_enable(SW_0),
